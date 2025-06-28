@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>To-Do List App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: whitesmoke;
+        }
+
+        video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .todo-container {
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .add-btn {
+            padding: 10px 20px;
+            border: none;
+            background-color: #00adb5;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .add-btn:hover {
+            background-color: #008b91;
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        li {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        li.completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        .delete-btn {
+            background-color: crimson;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+
+        li span {
+            flex: 1;
+            cursor: pointer;
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+
+    <video autoplay muted loop>
+        <source src="./12440630_1920_1080_30fps.mp4" type="video/mp4">
+    </video>
+
+    <div class="todo-container">
+        <h1>To-Do List ✅</h1>
+
+        <div class="input-section">
+            <input type="text" id="task-input" placeholder="Enter a task..." required>
+            <button class="add-btn" id="add-btn">Add</button>
+        </div>
+
+        <ul id="task-list"></ul>
+    </div>
+
+    <script>
+        let tasks = [];
+
+        window.onload = () => {
+            const storedTasks = localStorage.getItem('tasks');
+            if (storedTasks) {
+                tasks = JSON.parse(storedTasks);
+            }
+            renderTasks();
+        };
+
+        document.getElementById('add-btn').addEventListener('click', addTask);
+
+        document.getElementById('task-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskText = taskInput.value.trim();
+
+            if (taskText !== "") {
+                const newTask = {
+                    id: Date.now(),
+                    text: taskText,
+                    completed: false
+                };
+                tasks.push(newTask);
+                saveTasks();
+                renderTasks();
+                taskInput.value = "";
+            }
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = "";
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = task.completed ? 'completed' : '';
+
+                li.innerHTML = `
+                    <span onclick="toggleTask(${task.id})">${task.text}</span>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})">🗑️</button>
+                `;
+
+                taskList.appendChild(li);
+            });
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            );
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+    </script>
+
+</body>
+
+</html>
